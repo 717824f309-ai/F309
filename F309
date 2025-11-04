@@ -1,0 +1,242 @@
++calculateFee() 
++generateRecepit() 
+     
+ SOURCE CODE :
+
+//EVENT CLASS 
+package ass; 
+ 
+import java.util.*; 
+ 
+import java.util.*; 
+ 
+public class Event { private static int counter = 1; private int id; private String name; private Date date; private Venue venue; 
+ 
+public Event(String name, Date date, Venue venue) { this.id = counter++; this.name = name; this.date = date; 
+this.venue = venue; 
+} 
+ 
+public int getId() { return id; } public String getName() { return name; } public Date getDate() { return date; } 
+public Venue getVenue() { return venue; } 
+ 
+public void displayAvailability() { 
+venue.displaySeatMap(); 
+} 
+ 
+@Override 
+public String toString() { 
+return "Event ID: " + id + ", Name: " + name + ", Date: " + date + ", Venue: " + venue.getName(); 
+} 
+} 
+//VENUE CLASS import java.util.*; 
+ 
+public class Venue {     private static int counter = 1; 
+    private int id;     private String name;     private List<Seat> seats;     public Venue(String name) {         this.id = counter++;         this.name = name; 
+        this.seats = new ArrayList<>(); 
+    } 
+ 
+    public void addSeat(Seat seat) {         seats.add(seat); 
+    } 
+ 
+    public List<Seat> getSeats() {         return seats; 
+    } 
+ 
+    public String getName() { 
+        return name; 
+    } 
+ 
+    public Seat getSeatById(int seatId) {         for (Seat seat : seats) { 
+            if (seat.getId() == seatId) return seat; 
+        } 
+        return null; 
+    } 
+ 
+    public void displaySeatMap() {         for (Seat seat : seats) {             System.out.println(seat); 
+        } 
+    } 
+} 
+//SEAT CLASS package ass; 
+ 
+public class Seat {     private static int counter = 1;     private int id;     private int row;     private int number; 
+    private boolean booked; 
+ 
+    public Seat(int row, int number) {         this.id = counter++;         this.row = row;         this.number = number;         this.booked = false; 
+    } 
+ 
+    public int getId() { return id; } 
+    public boolean isBooked() { return booked; }     public void book() { booked = true; } 
+    public void cancel() { booked = false; } 
+ 
+    @Override     public String toString() {         return "Seat ID: " + id + " [Row " + row + ", Seat " + number + "] - " + (booked ? "Booked" : "Available"); 
+    } 
+} 
+//CUSTOMER CLASS package ass; 
+ 
+public class Customer {     private static int counter = 1; 
+    private int id; 
+    private String name; 
+ 
+    public Customer(String name) { 
+        this.id = counter++; 
+        this.name = name; 
+    } 
+ 
+    public int getId() { return id; } 
+    public String getName() { return name; } 
+ 
+    @Override 
+    public String toString() { 
+        return "Customer ID: " + id + ", Name: " + name; 
+    } 
+} 
+ 
+//BOOKINGITEM CLASS 
+package ass; 
+ 
+public class BookingItem {     private Seat seat;     private Event event; 
+ 
+    public BookingItem(Seat seat, Event event) { 
+        this.seat = seat;         this.event = event;     } 
+ 
+    public Seat getSeat() { return seat; } 
+ 
+    @Override     public String toString() { 
+        return "Booked: " + seat + " for Event: " + event.getName(); 
+    } 
+} 
+//MAIN CLASS 
+package ass; 
+ 
+import java.util.*; 
+ 
+public class Main {     static Scanner scanner = new Scanner(System.in);     static List<Event> events = new ArrayList<>();     static List<Venue> venues = new ArrayList<>();     static List<Customer> customers = new ArrayList<>();     static List<Booking> bookings = new ArrayList<>(); 
+ 
+    public static void main(String[] args) { 
+        int choice;         do { 
+            System.out.println("\n=== Event Ticketing System ==="); 
+            System.out.println("1. Add Venue & Seats"); 
+            System.out.println("2. Add Event"); 
+            System.out.println("3. Book Seats"); 
+            System.out.println("4. Cancel Booking"); 
+            System.out.println("5. Display Events & Availability"); 
+            System.out.println("6. Exit");             System.out.print("Enter choice: ");             while (!scanner.hasNextInt()) { 
+                System.out.print("Please enter a valid number: ");                 scanner.next(); 
+            } 
+            choice = scanner.nextInt(); 
+            scanner.nextLine();  // consume newline 
+ 
+            switch (choice) {                 case 1 -> addVenue();                 case 2 -> addEvent();                 case 3 -> bookSeats();                 case 4 -> cancelBooking();                 case 5 -> displayEvents();                 case 6 -> System.out.println("Exiting...");                 default -> System.out.println("Invalid choice."); 
+            } 
+        } while (choice != 6); 
+    } 
+ 
+    static void addVenue() { 
+        System.out.print("Enter venue name: "); 
+        String name = scanner.nextLine(); 
+        Venue venue = new Venue(name); 
+ 
+        System.out.print("How many rows of seats? ");         int rows = scanner.nextInt(); 
+        System.out.print("How many seats per row? ");         int seatsPerRow = scanner.nextInt(); 
+        scanner.nextLine(); // consume newline 
+ 
+        for (int r = 1; r <= rows; r++) {             for (int s = 1; s <= seatsPerRow; s++) { 
+                venue.addSeat(new Seat(r, s)); 
+            } 
+        } 
+ 
+        venues.add(venue); 
+        System.out.println("Venue added successfully."); 
+    } 
+ 
+    static void addEvent() {         if (venues.isEmpty()) { 
+            System.out.println("No venues available. Add a venue first.");             return; 
+        } 
+ 
+        System.out.print("Enter event name: "); 
+        String name = scanner.nextLine(); 
+ 
+        System.out.println("Available Venues:");         for (int i = 0; i < venues.size(); i++) { 
+            System.out.println(i + ". " + venues.get(i).getName()); 
+        } 
+ 
+        System.out.print("Select venue index: ");         int venueIndex = scanner.nextInt(); 
+        scanner.nextLine(); // consume newline 
+ 
+        if (venueIndex < 0 || venueIndex >= venues.size()) {             System.out.println("Invalid venue selection.");             return; 
+        }  
+        Event event = new Event(name, new Date(), venues.get(venueIndex));         events.add(event); 
+        System.out.println("Event added successfully."); 
+    } 
+ 
+    static void bookSeats() {         if (events.isEmpty()) { 
+            System.out.println("No events available.");             return; 
+        } 
+ 
+        System.out.print("Enter customer name: "); 
+        String customerName = scanner.nextLine();         Customer customer = new Customer(customerName); 
+        customers.add(customer); 
+ 
+        System.out.println("Available Events:");         for (int i = 0; i < events.size(); i++) {             System.out.println(i + ". " + events.get(i)); 
+        } 
+ 
+        System.out.print("Select event index: ");         int eventIndex = scanner.nextInt(); 
+        scanner.nextLine(); // consume newline 
+ 
+        if (eventIndex < 0 || eventIndex >= events.size()) {             System.out.println("Invalid event selection.");             return; 
+        } 
+ 
+        Event selectedEvent = events.get(eventIndex); 
+        selectedEvent.displayAvailability(); 
+ 
+        System.out.print("Enter number of seats to book: ");         int numSeats = scanner.nextInt();         scanner.nextLine(); 
+ 
+        Booking booking = new Booking(customer); 
+ 
+        for (int i = 0; i < numSeats; i++) { 
+            System.out.print("Enter Seat ID to book: ");             int seatId = scanner.nextInt();             scanner.nextLine(); 
+ 
+            Seat seat = selectedEvent.getVenue().getSeatById(seatId);             if (seat == null) { 
+                System.out.println("Invalid Seat ID."); 
+            } else if (seat.isBooked()) { 
+                System.out.println("Seat already booked."); 
+            } else { 
+                booking.addItem(new BookingItem(seat, selectedEvent)); 
+                System.out.println("Seat booked successfully."); 
+            } 
+        } 
+ 
+        bookings.add(booking); 
+        System.out.println("Booking Successful! Summary:");         booking.printBookingSummary(); 
+    } 
+ 
+    static void cancelBooking() {         if (bookings.isEmpty()) { 
+            System.out.println("No bookings found.");             return; 
+        } 
+ 
+        System.out.print("Enter Booking ID to cancel: ");         int bookingId = scanner.nextInt();         scanner.nextLine(); 
+ 
+        Booking bookingToCancel = null;         for (Booking b : bookings) {             if (b.getId() == bookingId) {                 bookingToCancel = b; 
+                break; 
+            } 
+        } 
+ 
+        if (bookingToCancel == null) { 
+            System.out.println("Booking not found.");             return; 
+        } 
+ 
+        double fee = 10.0; // Flat cancellation fee for this example 
+        Cancellation cancellation = new Cancellation(bookingToCancel, fee);         bookings.remove(bookingToCancel); 
+ 
+        System.out.println("Cancellation successful."); 
+        System.out.println(cancellation); 
+    } 
+ 
+    static void displayEvents() {         if (events.isEmpty()) { 
+            System.out.println("No events found."); 
+            return; 
+        } 
+ 
+        for (Event e : events) {             System.out.println("\n" + e);             e.displayAvailability(); 
+        } 
+    } 
+}
